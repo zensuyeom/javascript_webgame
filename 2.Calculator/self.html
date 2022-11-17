@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>계산기</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      #result {
+        width: 180px;
+        height: 50px;
+        margin: 5px;
+        text-align: right;
+      }
+      #operator {
+        width: 50px;
+        height: 50px;
+        margin: 5px;
+        text-align: center;
+      }
+      button {
+        width: 50px;
+        height: 50px;
+        margin: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <input readonly id="operator" />
+    <input readonly type="text" id="result" />
+    <div class="row">
+      <button id="num-7">7</button>
+      <button id="num-8">8</button>
+      <button id="num-9">9</button>
+      <button id="plus">+</button>
+    </div>
+    <div class="row">
+      <button id="num-4">4</button>
+      <button id="num-5">5</button>
+      <button id="num-6">6</button>
+      <button id="minus">-</button>
+    </div>
+    <div class="row">
+      <button id="num-1">1</button>
+      <button id="num-2">2</button>
+      <button id="num-3">3</button>
+      <button id="divide">/</button>
+    </div>
+    <div class="row">
+      <button id="clear">C</button>
+      <button id="num-0">0</button>
+      <button id="calculate">=</button>
+      <button id="multiply">x</button>
+    </div>
+    <script>
+      let numArray = []; // 누른 숫자를 담아줄 배열
+      let numCnt = 0; // numArray 의 index 값을 부여함
+      let resultArray = []; // 결과 값을 담아줄 배열
+      let operArray = []; // 연산자를 담아줄 배열
+      let operCnt = 0; // operArray 의 index 값을 부여
+      let number = "";
+      let result;
+      let operator = "";
+      let oper = false;
+
+      const $operator = document.querySelector("#operator");
+      const $result = document.querySelector("#result");
+
+      const calc = (operator, num1, num2) => {
+        switch (operator) {
+          case "+":
+            result = num1 + num2;
+            break;
+          case "-":
+            result = num1 - num2;
+            break;
+          case "*":
+            result = num1 * num2;
+            break;
+          case "/":
+            result = num1 / num2;
+            break;
+          default:
+            break;
+        }
+        return result;
+      };
+
+      const onClickNumber = (event) => {
+        number += event.target.textContent;
+        if (!operator) {
+          $result.value += event.target.textContent;
+          numArray[0] = parseInt(number);
+        } else {
+          for (let i = 0; i < numCnt; i++) {
+            numArray[numCnt] = parseInt(number);
+          }
+          $result.value = number;
+        }
+      };
+
+      const onClickOperator = (op) => () => {
+        number = "";
+
+        if (numArray.length !== numCnt) {
+          // 연산자만 두번 눌렀을 때는 numCnt 증가 막기
+          numCnt++;
+          operCnt++;
+        }
+
+        operArray[operCnt] = op;
+
+        if (numCnt > 1) {
+          // 연산자 두번 째 부터 결과 값 출력
+          if (resultArray.length === 0) {
+            resultArray[0] = calc(operArray[1], numArray[0], numArray[1]);
+          } else {
+            for (let i = 1; i < numCnt - 1; i++) {
+              resultArray[i] = calc(
+                operArray[i + 1],
+                resultArray[i - 1],
+                numArray[i + 1]
+              );
+            }
+          }
+          $result.value = resultArray[resultArray.length - 1];
+        }
+
+        // console.log(numCnt);
+        // console.log(operArray);
+        // console.log(resultArray);
+
+        operator = op;
+        $operator.value = op;
+      };
+
+      document.querySelector("#num-0").addEventListener("click", onClickNumber);
+      document.querySelector("#num-1").addEventListener("click", onClickNumber);
+      document.querySelector("#num-2").addEventListener("click", onClickNumber);
+      document.querySelector("#num-3").addEventListener("click", onClickNumber);
+      document.querySelector("#num-4").addEventListener("click", onClickNumber);
+      document.querySelector("#num-5").addEventListener("click", onClickNumber);
+      document.querySelector("#num-6").addEventListener("click", onClickNumber);
+      document.querySelector("#num-7").addEventListener("click", onClickNumber);
+      document.querySelector("#num-8").addEventListener("click", onClickNumber);
+      document.querySelector("#num-9").addEventListener("click", onClickNumber);
+
+      document
+        .querySelector("#plus")
+        .addEventListener("click", onClickOperator("+"));
+      document
+        .querySelector("#minus")
+        .addEventListener("click", onClickOperator("-"));
+      document
+        .querySelector("#divide")
+        .addEventListener("click", onClickOperator("/"));
+      document
+        .querySelector("#multiply")
+        .addEventListener("click", onClickOperator("*"));
+
+      // =  버튼
+      document.querySelector("#calculate").addEventListener("click", () => {
+        if (numArray.length === 0) {
+          alert("숫자먼저 입력하세요.");
+          return;
+        }
+
+        if (resultArray.length === 0) {
+          resultArray[0] = calc(operArray[1], numArray[0], numArray[1]);
+          $result.value = resultArray[0];
+        } else {
+          resultArray[numCnt - 2] = calc(
+            operArray[numCnt],
+            resultArray[numCnt - 2],
+            numArray[numCnt]
+          );
+          $result.value = resultArray[resultArray.length - 1];
+        }
+
+        console.log(resultArray);
+      });
+      document.querySelector("#clear").addEventListener("click", () => {
+        numArray = [];
+        numCnt = 0;
+        resultArray = [];
+        operCnt = 0;
+        operator = "";
+
+        $operator.value = "";
+        $result.value = "";
+      });
+    </script>
+  </body>
+</html>
