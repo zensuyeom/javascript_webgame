@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>숫자야구</title>
+    <title>숫자야구self</title>
   </head>
   <body>
     <form id="form">
@@ -53,6 +53,8 @@
         return true;
       }
 
+      let out = 0;
+
       $form.addEventListener("submit", (e) => {
         e.preventDefault();
         const value = $input.value;
@@ -90,8 +92,22 @@
             }
           }
         }
+
+        // 아웃체크ㅜ
+        if (strike === 0 && ball === 0) {
+          out++;
+        }
+
+        if (out === 3) {
+          const message = document.createTextNode(
+            `패배 ! 정답은 ${answer.join("")}`
+          );
+          $logs.appendChild(message);
+          return;
+        }
+
         $logs.append(
-          `${value}: ${strike} 스트라이크 ${ball} 볼`,
+          `${value}: ${strike} 스트라이크 ${ball} 볼 ${out} 아웃`,
           document.createElement("br")
         );
         tries.push(value);
